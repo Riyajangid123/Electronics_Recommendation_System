@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import os
+
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
 
 st.set_page_config(
@@ -39,7 +42,7 @@ if st.button("Get Recommendations"):
             with st.spinner("Finding similar products..."):
 
                 response = requests.post(
-                    "http://127.0.0.1:8000/recommend",
+                    API_URL,
                     json=input_data,
                     timeout=10
                 )
