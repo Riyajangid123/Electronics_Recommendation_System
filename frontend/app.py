@@ -42,7 +42,7 @@ if st.button("Get Recommendations"):
             with st.spinner("Finding similar products..."):
 
                 response = requests.post(
-                    API_URL,
+                    f"{API_URL}/recommend",
                     json=input_data,
                     timeout=10
                 )
