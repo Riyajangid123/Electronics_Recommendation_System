@@ -1,35 +1,107 @@
 import streamlit as st
 import requests
 
-st.title("Electronics Recommendation System")
 
-# User input
-query_name = st.text_input("Enter Product Name")
+st.set_page_config(
+    page_title="Electronics Recommender",
+    page_icon="🛒",
+    layout="wide"
+)
 
-if st.button("Get Recommendations") and query_name.strip() != "":
-    # Prepare JSON payload
-    input_data = {"name": query_name.strip()}
 
-    # Call FastAPI endpoint
-    try:
-        response = requests.post("http://127.0.0.1:8000/recommend", json=input_data)
-        result = response.json()
+st.title("🛒 Electronics Recommendation System")
 
-        if "error" in result:
-            st.error(result["error"])
-        else:
-            st.subheader(f"Top 5 recommendations for: {result['query']}")
-            for idx, product in enumerate(result["recommendations"], start=1):
-                st.markdown("---")
-                st.markdown(f"### {product['name']}")
-                if product.get("image"):
-                    st.image(product["image"], width=200)
-                st.markdown(f"**Sub Category:** {product.get('sub_category', 'N/A')}")
-                st.markdown(f"**Main Category:** {product.get('main_category', 'N/A')}")
-                st.markdown(f"**Ratings:** {product.get('ratings', 'N/A')} ⭐ ({product.get('no_of_ratings', 'N/A')} reviews)")
-                st.markdown(f"**Discount Price:** ₹{product.get('discount_price', 'N/A')}")
-                st.markdown(f"**Actual Price:** ₹{product.get('actual_price', 'N/A')}")
-                if product.get("link"):
-                    st.markdown(f"[View Product]({product['link']})")
-    except Exception as e:
-        st.error(f"API request failed: {e}")
+st.markdown(
+    "Get similar electronic product recommendations instantly."
+)
+
+
+query_name = st.text_input(
+    "Enter Product Name",
+    placeholder="Example: iPhone, Samsung, OnePlus..."
+)
+
+
+if st.button("Get Recommendations"):
+
+    if query_name.strip() == "":
+
+        st.warning("Please enter a product name.")
+
+    else:
+
+        input_data = {
+            "name": query_name.strip()
+        }
+
+        try:
+
+            with st.spinner("Finding similar products..."):
+
+                response = requests.post(
+                    "http://127.0.0.1:8000/recommend",
+                    json=input_data,
+                    timeout=10
+                )
+
+                result=response.json()
+            if "error" in result:
+
+                st.error(result["error"])
+
+            else:
+
+                st.success(
+                    f"Top recommendations for: {result['query']}"
+                )
+
+                recommendations = result["recommendations"]
+
+                # display products
+                for product in recommendations:
+
+                    st.markdown("---")
+
+                    col1, col2 = st.columns([1, 2])
+
+                    # image column
+                    with col1:
+
+                        if product.get("image"):
+
+                            st.image(
+                                product["image"],
+                                width=220
+                            )
+
+                    # details column
+                    with col2:
+
+                        st.subheader(product["name"])
+
+                        st.markdown(
+                            f"⭐ Rating: "
+                            f"{product.get('ratings', 'N/A')}"
+                        )
+
+                        st.markdown(
+                            f"💰 Price: ₹"
+                            f"{product.get('price', 'N/A')}"
+                        )
+
+                        if product.get("link"):
+
+                            st.markdown(
+                                f"[🔗 View Product]"
+                                f"({product['link']})"
+                            )
+
+        except requests.exceptions.ConnectionError:
+
+            st.error(
+                "Could not connect to FastAPI server."
+            )
+
+        except Exception as e:
+
+            st.error(f"Error: {e}")

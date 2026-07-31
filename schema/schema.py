@@ -1,17 +1,22 @@
-from pydantic import BaseModel,HttpUrl
-from typing import Optional
+from pydantic import BaseModel, HttpUrl
+from typing import Optional, List
+
 
 class Product(BaseModel):
+
     name: str
-    sub_category: Optional[str] = None
-    main_category: Optional[str] = None
+
     image: Optional[HttpUrl] = None
-    link: Optional[HttpUrl] = None
+
+    price: Optional[float] = None
+
     ratings: Optional[float] = None
-    no_of_ratings: Optional[int] = None
-    discount_price: Optional[float] = None
-    actual_price: Optional[float] = None
+
+    link: Optional[HttpUrl] = None
+
 
 class Recommendation(BaseModel):
-    query: str  
-    recommendations: list[Product]  
+
+    query: str
+
+    recommendations: List[Product]
